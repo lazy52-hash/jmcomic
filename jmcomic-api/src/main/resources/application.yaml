@@ -1,0 +1,103 @@
+server:
+  address: 0.0.0.0
+  port: 8091
+jmcomic:
+  v2:
+    setting:
+      token: 185Hcomic3PAPP7R
+      version: 2.0.18
+      httping:
+        path: setting
+        timeout: 5000
+        interval: PT30M
+      api:
+        max-retry: 3
+        timeout: 5000
+  v1:
+    #v1不登录无法完整获取所有漫画
+    login:
+      username: username
+      password: password
+      #暂时是摆设
+      relogin-day: 180
+    website:
+      connection:
+        read-timeout: 5000
+        timeout: 5000
+      httping:
+        path: /templates/frontend/airav/js/bootstrap.min.js
+        timeout: 5000
+        interval: PT30M
+        headers:
+          Host:
+          Referer:
+      rate-limit:
+        enabled: true
+        minute: 30
+      max-retry: 3
+    image:
+      httping:
+        path: /media/albums/blank.jpg
+        timeout: 5000
+        headers:
+          Host:
+          Referer:
+        interval: PT30M
+      watermark:
+        enabled: true
+        add-date: true
+        value: '@lazy_decodeNode'
+      max-retry: 3
+      connection:
+        timeout: 5000
+        read-timeout: 5000
+    #开发环境配置,部署删了即可
+#    dev:
+#      proxy:
+#        enabled: true
+#        host: 127.0.0.1
+#        port: 2080
+#      cookies:
+#        ipcountryipm5: 554b4eb9d36eaaa03e4ca49693241543
+#        theme: light
+#        AVS: bvrnun6cin0d3m1b5fedd5i9c5
+logging:
+  level:
+    root: INFO
+    com.lazy.jmcomic: INFO
+
+#微服务配置 单体删了即可
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      enabled: true
+spring:
+  application:
+    name: jmcomic-api
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    service-url:
+      defaultZone: http://localhost:7891/eureka/
+    # 跨网络超时配置
+    eureka-server-connect-timeout-seconds: 10
+    eureka-server-read-timeout-seconds: 15
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+    ip-address: localhost
+    status-page-url: http://localhost:8091/actuator/info
+    health-check-url: http://localhost:8091/actuator/health
+    home-page-url: http://localhost:8091/
+    prefer-ip-address: true
+    instance-id: ${eureka.instance.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90

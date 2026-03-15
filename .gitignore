@@ -1,0 +1,53 @@
+HELP.md
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+新建文件夹/
+### Maven Wrapper & .mvn ###
+.mvn/
+mvnw
+mvnw.cmd
+
+### 子模块独立生成的 git 文件 ###
+jmcomic-common/.gitignore
+jmcomic-common/.gitattributes
+jmcomic-gateway/.gitignore
+jmcomic-gateway/.gitattributes
+
+### CLAUDE.md ###
+CLAUDE.md
+
+### jmcomic-web ###
+jmcomic-web/node_modules/
+jmcomic-web/dist/
+
+### Claude Code ###
+.claude/
+**/.claude/
