@@ -40,12 +40,12 @@ public class ImageServiceImpl implements ImageService {
 
     /**
      * 下载漫画封面
-     * @param id 漫画id
+     * @param filename 漫画cover文件名
      * @return
      */
     @Override
-    public Mono<byte[]> albumCover(int id) {
-        return downloadClient.download(String.format(WebImage.COMIC_COVER,id));
+    public Mono<byte[]> albumCover(String filename) {
+        return downloadClient.download(String.format(WebImage.COMIC_COVER,filename));
     }
 
     /**

@@ -17,7 +17,7 @@ public final class WebImage {
      *     <li>漫画ID</li>
      * </ul>
      * */
-    public static final String COMIC_COVER="/media/albums/%d_3x4.jpg";
+    public static final String COMIC_COVER="/media/albums/%s";
     /** 占位符:
      * <ul>
      *     <li>用户头像文件名（含后缀）</li>

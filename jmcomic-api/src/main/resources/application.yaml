@@ -16,8 +16,8 @@ jmcomic:
   v1:
     #v1不登录无法完整获取所有漫画
     login:
-      username: username
-      password: password
+      username: lazyqajmc
+      password: lazyqajmc
       #暂时是摆设
       relogin-day: 180
     website:

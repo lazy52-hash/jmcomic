@@ -89,9 +89,9 @@ public class ImageController {
         return "image/jpeg";
     }
 
-    @GetMapping("/image/cover/{albumId}")
-    public Mono<ResponseEntity<byte[]>> cover(@PathVariable("albumId") int albumId) {
-        return imageService.albumCover(albumId)
+    @GetMapping("/image/cover/{filename}")
+    public Mono<ResponseEntity<byte[]>> cover(@PathVariable("filename") String filename) {
+        return imageService.albumCover(filename)
                 .map(bytes -> {
                     return ResponseEntity.ok()
                             .contentType(MediaType.parseMediaType("image/jpg"))

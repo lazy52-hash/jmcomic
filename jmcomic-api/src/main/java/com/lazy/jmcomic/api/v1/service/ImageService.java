@@ -4,7 +4,7 @@ import com.lazy.jmcomic.common.dto.ChapterImageDto;
 import reactor.core.publisher.Mono;
 
 public interface ImageService {
-    Mono<byte[]> albumCover(int id);
+    Mono<byte[]> albumCover(String filename);
     Mono<byte[]> decodeImage(ChapterImageDto image);
     /** 下载GIF图片（不加密，直接透传） */
     Mono<byte[]> downloadGif(int chapterId, String fileName);
