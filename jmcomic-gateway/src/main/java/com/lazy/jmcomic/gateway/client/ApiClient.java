@@ -237,13 +237,13 @@ public class ApiClient {
 
     /**
      * 获取漫画封面
-     * @param albumId 漫画ID
+     * @param filename 漫画ID
      * @return 封面图片字节（含响应头）
      */
-    public Mono<ResponseEntity<byte[]>> getAlbumCover(int albumId) {
-        log.debug("调用API获取封面: albumId={}", albumId);
+    public Mono<ResponseEntity<byte[]>> getAlbumCover(String filename) {
+        log.debug("调用API获取封面:{}", filename);
         return webClient.get()
-                .uri(API_PREFIX + "/image/cover/{albumId}", albumId)
+                .uri(API_PREFIX + "/image/cover/{filename}", filename)
                 .retrieve()
                 .toEntity(byte[].class);
     }

@@ -120,7 +120,9 @@ public class AlbumServiceImpl implements IAlbumService {
         //不要硬编码网关路径,改成文件名
 /*        //封面转网关路径
         cover = "/image/cover/" + id + ".jpg";*/
-        cover=cover.substring(cover.lastIndexOf("/"));
+        int last=cover.lastIndexOf("?");
+        if(last==-1){last=cover.length();}
+        cover=cover.substring(cover.lastIndexOf("/")+1,last);
         String[] works = convertToArray(document.select(AlbumDetailPage.WORKS_SELECTION));
         log.debug("解析漫画详情:{}成功", id);
         return new AlbumDetail(id, name, actors, authors, photoCount, description,
@@ -145,7 +147,9 @@ public class AlbumServiceImpl implements IAlbumService {
             String type = safeText(item, SearchPage.COMIC_TYPE_SELECTION);
             String cover = safeAttr(item, SearchPage.COMIC_COVER_SELECTION, "data-original");
             //直接转为文件名
-            cover=cover.substring(cover.lastIndexOf("/"));
+            int last=cover.lastIndexOf("?");
+            if(last==-1){last=cover.length();}
+            cover=cover.substring(cover.lastIndexOf("/"),last);
             boolean isUpdated = !item.select(SearchPage.COMIC_IS_UPDATED_SELECTION).isEmpty();
             return new AlbumInfo(id, name, authors, likes, tag, tags, type, cover, isUpdated);
         }catch (Exception e){

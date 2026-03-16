@@ -34,13 +34,13 @@ public class ImageController {
 
     /**
      * 获取漫画封面
-     * @param albumId 漫画ID
+     * @param filename 漫画ID
      * @return 封面图片
      */
-    @GetMapping("/cover/{albumId}.jpg")
-    public Mono<ResponseEntity<byte[]>> cover(@PathVariable int albumId) {
-        log.debug("网关获取封面: albumId={}", albumId);
-        return apiClient.getAlbumCover(albumId);
+    @GetMapping("/cover/{filename}")
+    public Mono<ResponseEntity<byte[]>> cover(@PathVariable String filename) {
+        log.debug("网关获取封面: {}", filename);
+        return apiClient.getAlbumCover(filename);
     }
 
     /**
