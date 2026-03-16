@@ -27,4 +27,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(Map.of("code", 502, "message", "解析服务异常，请稍后重试"));
     }
+    @ExceptionHandler(WebClientResponseException.ServiceUnavailable.class)
+    public ResponseEntity<Map<String, Object>> handleServiceUnavailable(WebClientResponseException.ServiceUnavailable ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(Map.of("code", 503, "message", "解析服务器连接失败,请联系站点维护者"));
+    }
 }
