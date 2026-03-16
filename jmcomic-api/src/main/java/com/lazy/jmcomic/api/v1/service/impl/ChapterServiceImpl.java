@@ -86,15 +86,14 @@ public class ChapterServiceImpl implements IChapterService {
     }
 
     /**
-     * 将CDN头像URL转换为网关代理路径
-     * 如 https://cdn/media/users/abc123.jpg → /image/avatar/abc123.jpg
+     * 将CDN头像URL转换为头像文件名
      */
     private String toAvatarGatewayPath(String cdnUrl) {
         if (cdnUrl == null || cdnUrl.isEmpty()) return "";
         String marker = "/media/users/";
         int idx = cdnUrl.indexOf(marker);
         if (idx >= 0) {
-            return "/image/avatar/" + cdnUrl.substring(idx + marker.length());
+            return cdnUrl.substring(idx + marker.length());
         }
         log.warn("无法解析头像CDN URL: {}", cdnUrl);
         return "";
