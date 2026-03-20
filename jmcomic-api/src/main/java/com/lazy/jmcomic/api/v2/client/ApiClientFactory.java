@@ -201,4 +201,7 @@ public class ApiClientFactory {
         return self.execute(new ApiRequest(
                 ApiPath.API_NOVEL_CHAPTERS, ApiRequest.Method.GET, new HashMap<>(HEADERS), params, null));
     }
+    public Mono<String> login(String username,String password){
+        return null;
+    }
 }

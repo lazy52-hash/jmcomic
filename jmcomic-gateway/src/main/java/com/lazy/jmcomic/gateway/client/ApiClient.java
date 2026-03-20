@@ -26,7 +26,7 @@ public class ApiClient {
     private final WebClient webClient;
     public ApiClient(WebClient.Builder builder) {
         this.webClient = builder
-                .codecs(c -> c.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
+                .codecs(c -> c.defaultCodecs().maxInMemorySize(20 * 1024 * 1024))
                 .baseUrl("lb://jmcomic-api")
                 .build();
     }

@@ -77,7 +77,6 @@ public final class ApiClient {
             if (response.statusCode().is2xxSuccessful()) {
                 return response.bodyToMono(String.class);
             }
-            System.out.println(JSON.toJSONString(request));
             log.warn("API响应非2xx: {}", response.statusCode());
             return response.releaseBody().then(Mono.empty());
         });

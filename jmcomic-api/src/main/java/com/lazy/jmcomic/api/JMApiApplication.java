@@ -19,7 +19,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 LoginProperties.class,
                 WebsiteProperties.class,
                 ImageProperties.class,
-                SettingProperties.class
+                SettingProperties.class,
+                com.lazy.jmcomic.api.v2.config.properties.LoginProperties.class
                 //ProxyProperties.class,
         })
 @EnableAspectJAutoProxy(proxyTargetClass = true)

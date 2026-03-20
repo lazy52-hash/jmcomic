@@ -34,7 +34,7 @@ build/
 .mvn/
 mvnw
 mvnw.cmd
-
+.gitignore
 ### 子模块独立生成的 git 文件 ###
 jmcomic-common/.gitignore
 jmcomic-common/.gitattributes
