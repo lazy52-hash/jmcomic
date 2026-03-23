@@ -5,10 +5,13 @@ import com.lazy.jmcomic.api.v2.pojo.ApiRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 /**
@@ -22,14 +25,13 @@ public final class ApiClient {
 
     private final String baseUrl;
     private final WebClient webClient;
-    private final int maxRetry;
     private final Duration timeout;
 
     ApiClient(String domain, WebClient webClient, int maxRetry, int timeoutMs) {
         this.baseUrl = "https://" + domain + "/";
         this.webClient = webClient;
-        this.maxRetry = maxRetry;
         this.timeout = Duration.ofMillis(timeoutMs);
+
     }
 
     /**
@@ -56,11 +58,10 @@ public final class ApiClient {
                         request.headers().forEach(h::set);
                     }
                 });
-        spec.contentType(MediaType.APPLICATION_JSON);
+
         // 使用 exchangeToMono 获取完整响应，便于记录状态码
         Mono<String> mono = buildExchange(spec, request)
-                .timeout(timeout)
-                .retry(maxRetry);
+                .timeout(timeout);
 
         return mono.doOnError(e -> log.warn("API请求网络异常: {} -> {} {}", url,
                         e.getClass().getSimpleName(), e.getMessage()))
@@ -70,8 +71,9 @@ public final class ApiClient {
     private Mono<String> buildExchange(WebClient.RequestBodySpec spec, ApiRequest request) {
         WebClient.RequestHeadersSpec<?> headersSpec =
                 (request.method() == ApiRequest.Method.POST && request.data() != null)
-                        ? spec.bodyValue(request.data())
+                        ? spec.body(BodyInserters.fromValue(request.data()))
                         : spec;
+
         return headersSpec.exchangeToMono(response -> {
             log.debug("API响应状态: {}", response.statusCode());
             if (response.statusCode().is2xxSuccessful()) {

@@ -4,7 +4,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 import reactor.netty.http.client.HttpClient;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
  * <p>WebClient 配置</p>
@@ -15,10 +21,9 @@ public class WebClientConfig {
 
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
-        // 启用 301/302 自动重定向（用 followRedirect(true) 走内部实现，BiPredicate 版本在部分 Reactor Netty 版本中读不到 Location 头）
         HttpClient httpClient = HttpClient.create()
-                .followRedirect(true);
-
+                .followRedirect(true)
+                .keepAlive(false);
         return builder
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .codecs(configurer -> configurer

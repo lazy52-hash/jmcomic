@@ -37,5 +37,5 @@ public final class ApiPath {
     /** 获取小说内容  */
     public static final String API_NOVEL_CHAPTERS="novelchapters";
 
-
+    public static final String LOGIN="login";
 }

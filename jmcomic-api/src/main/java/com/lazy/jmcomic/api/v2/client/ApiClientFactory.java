@@ -1,20 +1,33 @@
 package com.lazy.jmcomic.api.v2.client;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.lazy.jmcomic.api.v2.annotation.SecureApi;
 import com.lazy.jmcomic.api.v2.config.ApiDomainRegistry;
+import com.lazy.jmcomic.api.v2.config.LoginInfoBean;
 import com.lazy.jmcomic.api.v2.config.properties.SettingProperties;
 import com.lazy.jmcomic.api.v2.constant.ApiPath;
 import com.lazy.jmcomic.api.v2.pojo.ApiRequest;
 import com.lazy.jmcomic.api.v2.task.ApiHttpingTask;
+import io.netty.handler.codec.http.HttpMethod;
 import jakarta.annotation.PostConstruct;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +45,8 @@ import static com.lazy.jmcomic.api.v2.constant.ApiRequest.HEADERS;
 @Slf4j
 @Component
 public class ApiClientFactory {
+    @Autowired
+    private LoginInfoBean loginInfoBean;
 
     @Autowired
     private WebClient webClient;
@@ -54,7 +69,7 @@ public class ApiClientFactory {
     private ApiClientFactory self;
 
     /** 持有 ApiDomainRegistry 内部引用，ping 后自动更新 */
-    private CopyOnWriteArrayList<String> aliveDomains;
+    private volatile CopyOnWriteArrayList<String> aliveDomains;
 
     /** 每个域名对应的客户端实例 */
     private final ConcurrentHashMap<String, ApiClient> clients = new ConcurrentHashMap<>();
@@ -94,7 +109,12 @@ public class ApiClientFactory {
                 settingProperties.api().timeout()
         ));
     }
-
+    private HttpMethod toNettyMethod(ApiRequest.Method method) {
+        return switch (method) {
+            case GET    -> HttpMethod.GET;
+            case POST   -> HttpMethod.POST;
+        };
+    }
     /**
      * 核心请求入口，被 @SecureApi 切面拦截：
      * 切面先往 request.headers() 注入 token/tokenParam，
@@ -113,7 +133,40 @@ public class ApiClientFactory {
                     httpingTask.ping(domain);
                 }));
     }
+    /**
+     * 专兼容写非ASCII的
+     * @param request
+     * @return
+     */
+    @SecureApi
+    public Mono<String> execute2(ApiRequest request,int i) {
+        if(i>settingProperties.api().maxRetry())return Mono.empty();
+        i++;
+        String uri = "https://"+nextDomain()+"/"+request.path();
+        StringBuilder query = new StringBuilder();
+        Map<String, String> params = request.params();
+        if (params != null && !params.isEmpty()) {
+            params.forEach((k, v) -> {
+                if (!query.isEmpty()) query.append("&");
+                query.append(k).append("=").append(v);  // 保持 raw 中文
+            });
+        }
 
+
+        if (!query.isEmpty()) {
+            uri += "?" + query;
+        }
+        try{
+            return Mono.just(Jsoup.connect(uri)
+                    .method(Connection.Method.GET)
+                    .headers(request.headers())
+                    .ignoreContentType(true)
+                    .execute().body());
+        }catch (IOException e){
+            log.warn("接口请求失败:{},message:{}",uri,e.getMessage());
+            return self.execute2(request,i);
+        }
+    }
     /** 获取 APP 设定 */
     public Mono<String> setting() {
         return self.execute(new ApiRequest(
@@ -124,10 +177,10 @@ public class ApiClientFactory {
      * @param keyword 关键词
      * @param page    页码
      */
-    public Mono<String> search(String keyword, int page) {
+    public Mono<String> search(String keyword, int page) throws IOException {
         Map<String, String> params = Map.of("search_query", keyword, "page", String.valueOf(page));
-        return self.execute(new ApiRequest(
-                ApiPath.API_COMIC_SEARCH, ApiRequest.Method.GET, new HashMap<>(HEADERS), params, null));
+        return self.execute2(new ApiRequest(
+                ApiPath.API_COMIC_SEARCH, ApiRequest.Method.GET, new HashMap<>(HEADERS), params, null),1);
     }
 
     /** 热门话题 */
@@ -173,8 +226,10 @@ public class ApiClientFactory {
                 ApiPath.API_COMIC_READ, ApiRequest.Method.GET, new HashMap<>(HEADERS), params, null));
     }
     public Mono<String> downloadPage(int id){
+        Map<String,String> headers=new HashMap<>(HEADERS);
+        headers.put("authorization",String.format("Bearer %s",loginInfoBean.getLoginInfo().jwttoken()));
         return self.execute(new ApiRequest(
-                ApiPath.API_ALBUM_DOWNLOAD+"/"+id, ApiRequest.Method.GET, new HashMap<>(HEADERS), null, null));
+                ApiPath.API_ALBUM_DOWNLOAD+"/"+id, ApiRequest.Method.GET,headers, null, null));
     }
     public Mono<String> week(){
         return self.execute(new ApiRequest(
@@ -201,7 +256,34 @@ public class ApiClientFactory {
         return self.execute(new ApiRequest(
                 ApiPath.API_NOVEL_CHAPTERS, ApiRequest.Method.GET, new HashMap<>(HEADERS), params, null));
     }
-    public Mono<String> login(String username,String password){
-        return null;
+    public Mono<String> login(String username,String password) {
+        //Map<String,String> data=Map.of("username",username,"password",password);
+        //神人JM客户端写法
+        Map<String,String>headers=new HashMap<>(HEADERS);
+//        headers.put("Content-Type","multipart/form-data");
+//        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+//        bodyBuilder.part("username",username);
+//        bodyBuilder.part("password",password);
+        Map<String,String> data=Map.of("username",username,"password",password);
+        return self.login(new ApiRequest(ApiPath.LOGIN, ApiRequest.Method.POST,headers,null, data),1);
+    }
+
+    //原login没改逻辑莫名其妙的服务端跑不起来了,改jsoup试试
+    @SecureApi
+    public Mono<String> login(ApiRequest request,int i)  {
+        if(i>settingProperties.api().maxRetry()) return Mono.empty();
+        i++;
+        String baseurl = "https://"+nextDomain()+"/"+request.path();
+        try{
+            return Mono.just(Jsoup.connect(baseurl)
+                    .method(Connection.Method.POST)
+                    .headers(request.headers())
+                    .data((Map<String, String>) request.data())
+                    .ignoreContentType(true)
+                    .execute().body());
+        }catch (IOException e){
+            log.error("登录API请求异常:{},message:{}",baseurl,e.getMessage());
+            return self.login(request,i);
+        }
     }
 }

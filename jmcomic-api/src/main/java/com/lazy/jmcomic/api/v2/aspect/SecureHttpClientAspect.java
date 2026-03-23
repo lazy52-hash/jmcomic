@@ -46,6 +46,7 @@ public class SecureHttpClientAspect {
             try {
                 return ResponseDecryptor.decryptData(properties.token(), unixSeconds, data);
             } catch (Exception e) {
+                System.out.println(data);
                 throw new RuntimeException("响应解密失败", e);
             }
         });
