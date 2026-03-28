@@ -22,13 +22,13 @@ public class WebClientConfig {
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
         HttpClient httpClient = HttpClient.create()
-                .followRedirect(true)
-                .keepAlive(false);
+                .followRedirect(true);
+                //.keepAlive(false);
         return builder
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .codecs(configurer -> configurer
                         .defaultCodecs()
-                        .maxInMemorySize(20 * 1024 * 1024))
+                        .maxInMemorySize(50 * 1024 * 1024))
                 .build();
     }
 }

@@ -16,7 +16,7 @@ public class ZipDownloadClientConfig {
         return webClientBuilder
                 .codecs(configurer -> configurer
                         .defaultCodecs()
-                        .maxInMemorySize(500 * 1024 * 1024))
+                        .maxInMemorySize(1000 * 1024 * 1024))
                 .build();
     }
 }

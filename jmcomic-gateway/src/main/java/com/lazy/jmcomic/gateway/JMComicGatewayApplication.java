@@ -17,7 +17,7 @@ public class JMComicGatewayApplication {
         return WebClient.builder()
                 .codecs(configurer -> configurer
                         .defaultCodecs()
-                        .maxInMemorySize(20 * 1024 * 1024));
+                        .maxInMemorySize(50 * 1024 * 1024));
     }
     public static void main(String[] args) {
         SpringApplication.run(JMComicGatewayApplication.class, args);

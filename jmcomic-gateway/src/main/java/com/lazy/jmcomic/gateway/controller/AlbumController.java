@@ -47,6 +47,12 @@ public class AlbumController {
             @RequestParam(defaultValue = "1") Integer page) {
         log.debug("网关搜索漫画: keyword={}, tag={}, sort={}, time={}, type={}, page={}",
                 keyword, tag, sort, time, type, page);
+
+        if(keyword.length()<2){//JM限制
+            return Mono.just(new AlbumPage<>("搜索关键词不得低于2字"));
+        }else if(keyword.matches("^\\d+")){
+            return Mono.just(new AlbumPage<>("请不要搜索纯数字,使用解析接口即可"));
+        }
         SearchDto dto = new SearchDto(keyword);
         if (tag != null) dto.setTag(AlbumTag.getByValue(tag));
         if (sort != null) dto.setSort(SortType.getByValue(sort));

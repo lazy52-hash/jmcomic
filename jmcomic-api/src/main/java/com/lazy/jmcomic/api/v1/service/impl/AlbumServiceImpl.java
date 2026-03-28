@@ -1,5 +1,6 @@
 package com.lazy.jmcomic.api.v1.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.lazy.jmcomic.api.v1.client.WebCrawlFactory;
 import com.lazy.jmcomic.api.v1.constant.selector.AlbumDetailPage;
 import com.lazy.jmcomic.api.v1.constant.selector.SearchPage;
@@ -36,7 +37,13 @@ public class AlbumServiceImpl implements IAlbumService {
         //Document document= Jsoup.parse(new File(""));
         log.debug("开始搜索漫画");
         Document document=factory.execute((cli)->cli.searchPage(dto)).parse();
-        String message=document.select(SearchPage.COMIC_SEARCH_MESSAGE_SELECTION).first().text();
+        String message=null;
+        try{
+            message=document.select(SearchPage.COMIC_SEARCH_MESSAGE_SELECTION).first().text();
+        }catch (Exception e){
+            log.error("请求搜索：{}:异常响应:{}", JSON.toJSONString(dto),document.html());
+            log.error(e.getMessage());
+        }
         Elements elements=document.select(SearchPage.COMIC_ELEMENTS_SELECTION);
         if(!elements.isEmpty()){
             List<AlbumInfo> wrappers=new ArrayList<AlbumInfo>();
