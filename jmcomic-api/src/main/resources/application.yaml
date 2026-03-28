@@ -1,6 +1,9 @@
 server:
   address: 0.0.0.0
   port: 8091
+  netty:
+    idle-timeout: 20s            # 避免僵尸连接
+    connection-timeout: 30000  
 jmcomic:
   v2:
     setting:
