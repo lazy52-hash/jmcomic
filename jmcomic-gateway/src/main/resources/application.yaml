@@ -14,6 +14,24 @@ spring:
         enabled: true
       configurations: default
       enabled: true
+reactor:
+  netty:
+    http:
+      client:
+        pool:
+          acquire-timeout: 10s           # 获取连接超时10秒
+          max-idle-time: 30s             # 空闲30秒关闭
+          max-life-time: 60s             # 最大存活60秒
+          evict-in-background: 30s
+        # 增加事件循环线程数
+        threads: 16
+        connect-timeout: 5000            # 连接超时5秒
+        response-timeout: 30000          # 响应超时30秒
+      cache:
+        enabled: true
+        ttl: 30s
+        capacity: 256
+      enabled: true      
 server:
   port: 7813
 eureka:
