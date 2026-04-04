@@ -91,6 +91,9 @@ public class AlbumServiceImpl implements IAlbumService {
         Elements detailElements=container.select(AlbumDetailPage.DETAIL_SELECTIONS);
         if(!detailElements.isEmpty()){
             try{
+                String jmid=detailElements.get(0).ownText().trim();
+                Integer newId=parseInt(jmid.substring(2));
+                id=newId==0?id:newId;
                 //叙述
                 description = detailElements.get(1).text();
                 //页数
