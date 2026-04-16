@@ -44,8 +44,7 @@ public class ImageDownloadClient {
             log.warn("无可用图片CDN");
             return null;
         }
-        // 取绝对值防止溢出为负数
-        int idx = Math.abs(cursor.getAndIncrement() % cdns.size());
+        int idx = Math.floorMod(cursor.getAndIncrement(), cdns.size());
         String cdn = cdns.get(idx);
         log.debug("分配图片CDN[{}]: {}", idx, cdn);
         return cdn;

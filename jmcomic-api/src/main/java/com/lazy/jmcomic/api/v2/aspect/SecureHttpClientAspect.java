@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * @since 2026.3.14
@@ -32,7 +32,7 @@ public class SecureHttpClientAspect {
         log.debug("进入签名生成");
         Object[] args = joinPoint.getArgs();
         ApiRequest apiRequest = (ApiRequest) args[0];
-        long unixSeconds = new Date().toInstant().getEpochSecond();
+        long unixSeconds = Instant.now().getEpochSecond();
         // 生成签名，注入 token/tokenParam 到请求头
         SignatureGenerator.Sign sign = SignatureGenerator.generate(properties.token(), properties.version(), unixSeconds);
         apiRequest.headers().put("Token", sign.token());
@@ -46,7 +46,6 @@ public class SecureHttpClientAspect {
             try {
                 return ResponseDecryptor.decryptData(properties.token(), unixSeconds, data);
             } catch (Exception e) {
-                System.out.println(data);
                 throw new RuntimeException("响应解密失败", e);
             }
         });

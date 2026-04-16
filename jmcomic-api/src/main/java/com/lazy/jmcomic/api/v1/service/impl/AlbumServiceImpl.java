@@ -64,7 +64,8 @@ public class AlbumServiceImpl implements IAlbumService {
     @Override
     public AlbumDetail findAlbumById(int id) throws IOException {
         log.debug("开始解析漫画详情：{}",id);
-        Document document=factory.execute(cli->cli.albumPage(id)).parse();
+        int finalId = id;
+        Document document=factory.execute(cli->cli.albumPage(finalId)).parse();
         //基础数据
         String name = document.select(AlbumDetailPage.NAME_SELECTION).text();
         String cover = document.select(AlbumDetailPage.COVER_SELECTION).attr("src");
@@ -91,8 +92,8 @@ public class AlbumServiceImpl implements IAlbumService {
         Elements detailElements=container.select(AlbumDetailPage.DETAIL_SELECTIONS);
         if(!detailElements.isEmpty()){
             try{
-                String jmid=detailElements.get(0).ownText().trim();
-                Integer newId=parseInt(jmid.substring(2));
+                String jmId=detailElements.get(0).ownText().trim();
+                Integer newId=parseInt(jmId.substring(2));
                 id=newId==0?id:newId;
                 //叙述
                 description = detailElements.get(1).text();
